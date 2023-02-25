@@ -6,6 +6,10 @@ import pycurl
 from os import system
 system('clear')
 
+def punicode(string):
+    # todo: replace with some library? that probably exists.
+    return string.replace('/', '%2F')
+
 def curl(url):
     # this whole function is just copied from the pycurl website
     # i don't care about it. TODO: why is it so slow though?
@@ -20,16 +24,12 @@ def curl(url):
 def parseSearchResults(html): # TODO rename to camelCase
     document = bs(html, 'html.parser')
     results = {}
-    for div in document.find_all('div'):
-        if div.get('id') == "search_results":
-            for searchResult in div.find_all('a'):
-                pkg = searchResult.div.contents
-                results[pkg[0].strip()] = pkg[1].contents[0]
-            # results.sort()
-            return results
-
-def punicode(string):
-    return string.replace('/', '%2F')
+    div = document.find('div', id='search_results')
+    for searchResult in div.find_all('a'):
+        pkg = searchResult.div.contents
+        results[pkg[0].strip()] = pkg[1].contents[0]
+    # results.sort()
+    return results
 
 def searchGpo(query):
     # TODO : MAKE IT SLURPY
