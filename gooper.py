@@ -2,9 +2,9 @@ from bs4 import BeautifulSoup as bs
 from re import compile as regex
 import pycurl
 
-# temp
-from os import system
-system('clear')
+# # temp
+# from os import system
+# system('clear')
 
 def punicode(string):
     # todo: replace with some library? that probably exists.
@@ -48,35 +48,55 @@ def searchPrint(query):
             for i in results.keys():
                 print('\033[1m', i, '\033[0m: ', results[i], sep='')
 
-def showGpo(query):
-    url = f"http://gpo.zugaina.org/{query}"
-    doc = bs(curl(url), 'html.parser')
-    name = query[1+query.index('/'):]
-    if doc.find(text=regex('404')):
-        # TODO: try to search for a version using the packages name
-        return None
-    info = {
-        'category': query[:query.index('/')],
-        'name': name,
-        'description': doc.find('h5', class_='gray').contents[0],
-        'overlays': {}
-    }
-    ebuilds = doc.find('div', id='ebuild_list').find_all('li')
-    for i in ebuilds:
-        name = i.b.contents[0]
-        version = name[1+name.rindex('-'):]
-        overlay = i.find('a', href=regex('Overlay')).contents[0]
-        if overlay not in info['overlays']:
-            info['overlays'][overlay] = []
-        info['overlays'][overlay].append(version)
-    return info
+def findPkgFromUnclearName(s):
+    results = searchGpo(s)
+    matches = []
+    for result in results.keys():
+        name = result[result.index('/')+1:]
+        category = result[:result.index('/')]
+        # don't include things from acct-user or acct-group or virtual!
+        if name == s and category not in ('acct-user', 'acct-group', 'virtual'):
+            matches.append(result)
+    # returns a list so that a user of this function can choose what
+    # to do in the case of multiple matches: display all of them,
+    # error out and fail, or display the first one.
+    return matches
+
+def showGpo(string):
+    matches = findPkgFromUnclearName(string)
+    infos = []
+    for query in matches:
+        url = f"http://gpo.zugaina.org/{query}"
+        doc = bs(curl(url), 'html.parser')
+        name = query[1+query.index('/'):]
+        info = {
+            'category': query[:query.index('/')],
+            'name': name,
+            'description': doc.find('h5', class_='gray').contents[0],
+            'overlays': {}
+        }
+        ebuilds = doc.find('div', id='ebuild_list').find_all('li')
+        for i in ebuilds:
+            name = i.b.contents[0]
+            version = name[1+name.rindex('-'):]
+            overlay = i.find('a', href=regex('Overlay')).contents[0]
+            if overlay not in info['overlays']:
+                info['overlays'][overlay] = []
+            info['overlays'][overlay].append(version)
+        infos.append(info)
+    return infos
 
 def showPrint(query):
     package = showGpo(query)
-    if package:
+    if len(package) > 1:
+        print("sorry, more than one packages match your query! :(",
+              "did you mean:",
+              *['\t' + x['category'] + '/' + x['name'] for x in package],
+              sep='\n')
+    elif package:
         import pprint
         pp = pprint.PrettyPrinter(indent=4).pprint
-        pp(package)
+        pp(package[0])
     else:
         print("sorry, no package :(")
 
