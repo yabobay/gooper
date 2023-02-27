@@ -2,10 +2,6 @@ from bs4 import BeautifulSoup as bs
 from re import compile as regex
 import pycurl
 
-# # temp
-# from os import system
-# system('clear')
-
 def punicode(string):
     # todo: replace with some library? that probably exists.
     return string.replace('/', '%2F')
@@ -111,10 +107,10 @@ if __name__ == '__main__':
                                          help='search for a package')
     searchParser.add_argument('query')
     searchParser.add_argument('--stdout', action='store_true',
-                                help='only output ebuild names')
+                              help='only output ebuild names')
 
     showParser = subparsers.add_parser('show',
-                                         help='show info about a package')
+                                       help='show info about a package')
     showParser.add_argument('package')
 
     args = argparser.parse_args()
