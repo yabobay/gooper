@@ -75,7 +75,7 @@ def showGpo(string):
         for i in ebuilds:
             name = i.b.contents[0]
             version = name[1+name.rindex('-'):]
-            overlay = i.find('a', href=regex('Overlay')).contents[0]
+            overlay = i.find('a', href=regex('Overlays')).contents[0]
             if overlay not in info['overlays']:
                 info['overlays'][overlay] = []
             info['overlays'][overlay].append(version)
