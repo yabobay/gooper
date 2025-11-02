@@ -87,7 +87,7 @@ def showGpo(string):
 def showPrint(query):
     package = showGpo(query)
     if len(package) > 1:
-        print("sorry, more than one packages match your query! :(",
+        print("sorry, more than one package matches your query! :(",
               "did you mean:",
               *['\t' + x['category'] + '/' + x['name'] for x in package],
               sep='\n')
