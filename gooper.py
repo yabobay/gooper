@@ -37,11 +37,10 @@ def searchPrint(query):
     if results == {}:
         print("sorry, no results. :(")
     else:
-        if args.stdout:
-            for i in results.keys():
+        for i in results.keys():
+            if args.stdout:
                 print(i)
-        else:
-            for i in results.keys():
+            else:
                 print('\033[1m', i, '\033[0m: ', results[i], sep='')
 
 def findPkgFromUnclearName(s):
@@ -59,7 +58,10 @@ def findPkgFromUnclearName(s):
     return matches
 
 def showGpo(string):
-    matches = findPkgFromUnclearName(string)
+    if string.__contains__('/'):
+        matches = [string]
+    else:
+        matches = findPkgFromUnclearName(string)
     infos = []
     for query in matches:
         url = f"http://gpo.zugaina.org/{query}"
