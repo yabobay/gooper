@@ -4,8 +4,6 @@ import pycurl
 import urllib.parse
 
 def curl(url):
-    # this whole function is just copied from the pycurl website
-    # i don't care about it. TODO: why is it so slow though?
     import pycurl, certifi
     from io import BytesIO
     buffer = BytesIO(); c = pycurl.Curl(); c.setopt(c.URL, url);
@@ -14,14 +12,13 @@ def curl(url):
     body = buffer.getvalue();
     return body.decode('utf-8')
 
-def parseSearchResults(html): # TODO rename to camelCase
+def parseSearchResults(html):
     document = bs(html, 'html.parser')
     results = {}
     div = document.find('div', id='search_results')
     for searchResult in div.find_all('a'):
         pkg = searchResult.div.contents
         results[pkg[0].strip()] = pkg[1].contents[0]
-    # results.sort()
     return results
 
 def searchGpo(query):
@@ -45,12 +42,8 @@ def findPkgFromUnclearName(s):
     for result in results.keys():
         name = result[result.index('/')+1:]
         category = result[:result.index('/')]
-        # don't include things from acct-user or acct-group or virtual!
         if name == s and category not in ('acct-user', 'acct-group', 'virtual'):
             matches.append(result)
-    # returns a list so that a user of this function can choose what
-    # to do in the case of multiple matches: display all of them,
-    # error out and fail, or display the first one.
     return matches
 
 def showGpo(string):
