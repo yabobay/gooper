@@ -1,10 +1,7 @@
 from bs4 import BeautifulSoup as bs
 from re import compile as regex
 import pycurl
-
-def punicode(string):
-    # todo: replace with some library? that probably exists.
-    return string.replace('/', '%2F')
+import urllib.parse
 
 def curl(url):
     # this whole function is just copied from the pycurl website
@@ -28,8 +25,7 @@ def parseSearchResults(html): # TODO rename to camelCase
     return results
 
 def searchGpo(query):
-    # TODO : MAKE IT SLURPY
-    url = f"http://gpo.zugaina.org/Search?search={punicode(query)}"
+    url = f"http://gpo.zugaina.org/Search?search={urllib.parse.quote(query, safe='')}"
     return parseSearchResults(curl(url))
 
 def searchPrint(query):
